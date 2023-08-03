@@ -12,12 +12,12 @@ module Runbook
         if respond_to?(method)
           send(method, object, output, metadata)
         else
-          $stderr.puts("WARNING! No render rule for #{object.class} (#{_method_name(object)}) in #{self.to_s}")
+          warn("WARNING! No render rule for #{object.class} (#{_method_name(object)}) in #{self}")
         end
       end
 
       def _method_name(object)
-        object.class.to_s.underscore.gsub("/", "__")
+        object.class.to_s.underscore.gsub('/', '__')
       end
     end
   end

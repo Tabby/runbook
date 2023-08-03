@@ -22,9 +22,9 @@ module Runbook
         if respond_to?(method)
           send(method, object, metadata)
         else
-          msg = "ERROR! No execution rule for #{object.class} (#{_method_name(object)}) in #{to_s}"
+          msg = "ERROR! No execution rule for #{object.class} (#{_method_name(object)}) in #{self}"
           metadata[:toolbox].error(msg)
-          return
+          nil
         end
       end
 
@@ -36,7 +36,7 @@ module Runbook
         metadata[:toolbox].output("Section #{metadata[:position]}: #{object.title}\n\n")
       end
 
-      def runbook__entities__setup(object, metadata)
+      def runbook__entities__setup(_object, metadata)
         metadata[:toolbox].output("Setup:\n\n")
       end
 
@@ -45,9 +45,10 @@ module Runbook
         title = " #{object.title}".rstrip
         toolbox.output("Step #{metadata[:position]}:#{title}\n\n")
         return if metadata[:auto] || metadata[:noop] ||
-          !metadata[:paranoid] || object.title.nil?
+                  !metadata[:paranoid] || object.title.nil?
+
         step_choices = _step_choices(object, metadata)
-        continue_result = toolbox.expand("Continue?", step_choices)
+        continue_result = toolbox.expand('Continue?', step_choices)
         _handle_continue_result(continue_result, object, metadata)
       end
 
@@ -69,13 +70,13 @@ module Runbook
         end
 
         if metadata[:noop]
-          default_msg = default ? " (default: #{default})" : ""
-          echo_msg = object.echo ? "" : " (echo: false)"
+          default_msg = default ? " (default: #{default})" : ''
+          echo_msg = object.echo ? '' : ' (echo: false)'
           metadata[:toolbox].output("[NOOP] Ask: #{object.prompt} (store in: #{object.into})#{default_msg}#{echo_msg}")
           return
         end
 
-        result = metadata[:toolbox].ask(object.prompt, default: default, echo: object.echo)
+        result = metadata[:toolbox].ask(object.prompt, default:, echo: object.echo)
 
         target = object.parent.dsl
         target.singleton_class.class_eval { attr_accessor object.into }
@@ -97,7 +98,7 @@ module Runbook
       end
 
       def runbook__statements__description(object, metadata)
-        metadata[:toolbox].output("Description:")
+        metadata[:toolbox].output('Description:')
         metadata[:toolbox].output("#{object.msg}\n")
       end
 
@@ -106,15 +107,15 @@ module Runbook
           metadata[:toolbox].output(
             "[NOOP] Layout: #{object.structure.inspect}"
           )
-          unless ENV["TMUX"]
-            msg = "Warning: layout statement called outside a tmux pane."
+          unless ENV['TMUX']
+            msg = 'Warning: layout statement called outside a tmux pane.'
             metadata[:toolbox].warn(msg)
           end
           return
         end
 
-        unless ENV["TMUX"]
-          error_msg = "Error: layout statement called outside a tmux pane. Exiting..."
+        unless ENV['TMUX']
+          error_msg = 'Error: layout statement called outside a tmux pane. Exiting...'
           metadata[:toolbox].error(error_msg)
           metadata[:toolbox].exit(1)
         end
@@ -148,8 +149,8 @@ module Runbook
           begin
             source = deindent(object.block.source)
             metadata[:toolbox].output("```ruby\n#{source}\n```\n")
-          rescue ::MethodSource::SourceNotFoundError => e
-            metadata[:toolbox].output("Unable to retrieve source code")
+          rescue ::MethodSource::SourceNotFoundError => _e
+            metadata[:toolbox].output('Unable to retrieve source code')
           end
           return
         end
@@ -158,7 +159,7 @@ module Runbook
         parent_items = object.parent.items
         remaining_items = parent_items.slice!(next_index..-1)
         object.parent.dsl.instance_exec(object, metadata, self, &object.block)
-        parent_items[next_index..-1].each { |item| item.dynamic! }
+        parent_items[next_index..].each(&:dynamic!)
         parent_items.push(*remaining_items)
       end
 
@@ -171,15 +172,15 @@ module Runbook
         time = object.time
         message = "Sleeping #{time} seconds [:bar] :current/:total"
         pastel = Pastel.new
-        yellow = pastel.on_yellow(" ")
-        green = pastel.on_green(" ")
+        yellow = pastel.on_yellow(' ')
+        green = pastel.on_green(' ')
         progress_bar = TTY::ProgressBar.new(
           message,
           total: time,
           width: 60,
-          head: ">",
+          head: '>',
           incomplete: yellow,
-          complete: green,
+          complete: green
         )
         progress_bar.start
         time.times do
@@ -189,56 +190,58 @@ module Runbook
       end
 
       def should_skip?(metadata)
-        if metadata[:reversed] && metadata[:position].empty?
-          current_pose = "0"
-        else
-          current_pose = metadata[:position]
-        end
+        current_pose = if metadata[:reversed] && metadata[:position].empty?
+                         '0'
+                       else
+                         metadata[:position]
+                       end
         return false if current_pose.empty?
+
         position = Gem::Version.new(current_pose)
         start_at = Gem::Version.new(metadata[:start_at])
-        return position < start_at
+        position < start_at
       end
 
       def start_at_is_substep?(object, metadata)
         return false unless object.is_a?(Entity)
         return true if metadata[:position].empty?
+
         metadata[:start_at].start_with?(metadata[:position])
       end
 
       def past_position?(current_position, position)
         current_pose = Gem::Version.new(current_position)
         pose = Gem::Version.new(position)
-        return pose <= current_pose
+        pose <= current_pose
       end
 
       def _method_name(object)
-        object.class.to_s.underscore.gsub("/", "__")
+        object.class.to_s.underscore.gsub('/', '__')
       end
 
-      def _step_choices(object, metadata)
+      def _step_choices(_object, _metadata)
         [
-          {key: "c", name: "Continue to execute this step", value: :continue},
-          {key: "s", name: "Skip this step", value: :skip},
-          {key: "j", name: "Jump to the specified position", value: :jump},
-          {key: "P", name: "Disable paranoid mode", value: :no_paranoid},
-          {key: "e", name: "Exit the runbook", value: :exit},
+          { key: 'c', name: 'Continue to execute this step', value: :continue },
+          { key: 's', name: 'Skip this step', value: :skip },
+          { key: 'j', name: 'Jump to the specified position', value: :jump },
+          { key: 'P', name: 'Disable paranoid mode', value: :no_paranoid },
+          { key: 'e', name: 'Exit the runbook', value: :exit }
         ]
       end
 
-      def _handle_continue_result(result, object, metadata)
+      def _handle_continue_result(result, _object, metadata)
         toolbox = metadata[:toolbox]
         case result
         when :continue
-          return
+          nil
         when :skip
           position = metadata[:position]
-          split_position = position.split(".")
+          split_position = position.split('.')
           new_step = (split_position.pop.to_i + 1).to_s
-          start_at = (split_position <<  new_step).join(".")
+          start_at = (split_position << new_step).join('.')
           metadata[:start_at] = start_at
         when :jump
-          result = toolbox.ask("What position would you like to jump to?")
+          result = toolbox.ask('What position would you like to jump to?')
           if past_position?(metadata[:position], result)
             metadata[:reverse] = true
             metadata[:reversed] = true
@@ -256,18 +259,17 @@ module Runbook
       base.register_hook(
         :kill_all_panes_after_book,
         :after,
-        Runbook::Entities::Book,
-      ) do |object, metadata|
+        Runbook::Entities::Book
+      ) do |_object, metadata|
         next if metadata[:noop] || metadata[:layout_panes].none? || metadata[:keep_panes]
+
         if metadata[:auto]
-          metadata[:toolbox].output("Killing all opened tmux panes...")
+          metadata[:toolbox].output('Killing all opened tmux panes...')
           kill_all_panes(metadata[:layout_panes])
         else
-          prompt = "Kill all opened panes?"
+          prompt = 'Kill all opened panes?'
           result = metadata[:toolbox].yes?(prompt)
-          if result
-            kill_all_panes(metadata[:layout_panes])
-          end
+          kill_all_panes(metadata[:layout_panes]) if result
         end
       end
     end
@@ -276,13 +278,11 @@ module Runbook
       base.register_hook(
         :add_additional_step_whitespace_hook,
         :after,
-        Runbook::Statement,
+        Runbook::Statement
       ) do |object, metadata|
-        if object.parent.is_a?(Runbook::Entities::Step) ||
-            object.parent.is_a?(Runbook::Entities::Setup)
-          if object.parent.items.last == object
-            metadata[:toolbox].output("\n")
-          end
+        if (object.parent.is_a?(Runbook::Entities::Step) ||
+           object.parent.is_a?(Runbook::Entities::Setup)) && (object.parent.items.last == object)
+          metadata[:toolbox].output("\n")
         end
       end
     end

@@ -3,7 +3,7 @@ module Runbook
     attr_accessor :parent
 
     def initialize
-      raise "Should not be initialized"
+      raise 'Should not be initialized'
     end
 
     def dynamic!
@@ -24,9 +24,7 @@ module Runbook
 
     def parent_entity
       node = self
-      while(node && !node.is_a?(Runbook::Entity))
-        node = node.parent
-      end
+      node = node.parent while node && !node.is_a?(Runbook::Entity)
       node
     end
   end

@@ -1,4 +1,4 @@
-::SSHKit::Backend::Abstract.class_eval do
+SSHKit::Backend::Abstract.class_eval do
   # Code taken from https://github.com/capistrano/sshkit/blob/v1.16.0/lib/sshkit/backends/abstract.rb#L98-L116
   # Copyright (c) 2008- Lee Hambley & Contributors
   # License link: https://github.com/capistrano/sshkit/blob/v1.16.0/LICENSE.md
@@ -25,21 +25,21 @@
   # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
   # DEALINGS IN THE SOFTWARE.
 
-  def as(who, &_block)
+  def as(who, &)
     if who.is_a? Hash
-      @user  = who[:user]  || who["user"]
-      @group = who[:group] || who["group"]
+      @user  = who[:user]  || who['user']
+      @group = who[:group] || who['group']
     else
       @user  = who
       @group = nil
     end
 
-    execute_args = {verbosity: Logger::DEBUG}
-    old_pty = ::SSHKit::Backend::Netssh.config.pty
+    execute_args = { verbosity: Logger::DEBUG }
+    old_pty = SSHKit::Backend::Netssh.config.pty
     begin
       if Runbook.configuration.enable_sudo_prompt
-        execute_args[:interaction_handler] ||= ::SSHKit::Sudo::InteractionHandler.new
-        ::SSHKit::Backend::Netssh.config.pty = true
+        execute_args[:interaction_handler] ||= SSHKit::Sudo::InteractionHandler.new
+        SSHKit::Backend::Netssh.config.pty = true
       end
       execute <<-EOTEST, execute_args
         if ! sudo -u #{@user} whoami > /dev/null
@@ -49,7 +49,7 @@
       EOTEST
       yield
     ensure
-      ::SSHKit::Backend::Netssh.config.pty = old_pty
+      SSHKit::Backend::Netssh.config.pty = old_pty
     end
   ensure
     remove_instance_variable(:@user)

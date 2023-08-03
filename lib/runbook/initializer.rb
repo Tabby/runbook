@@ -4,8 +4,8 @@ module Runbook
 
     source_root File.join(
       File.dirname(__FILE__),
-      "generators",
-      "project",
+      'generators',
+      'project'
     )
 
     add_runtime_options!
@@ -13,21 +13,21 @@ module Runbook
 
     def create_runbookfile
       template(
-        "templates/Runbookfile.tt",
-        "Runbookfile",
+        'templates/Runbookfile.tt',
+        'Runbookfile'
       )
     end
 
     def create_runbooks_directory
-      target = "runbooks"
+      target = 'runbooks'
       empty_directory(target)
       _keep_dir(target)
     end
 
     def create_lib_directory
-      dirs = [
-        "lib",
-        "runbook",
+      dirs = %w[
+        lib
+        runbook
       ]
       target = File.join(*dirs)
 
@@ -36,10 +36,10 @@ module Runbook
     end
 
     def create_extensions_directory
-      dirs = [
-        "lib",
-        "runbook",
-        "extensions",
+      dirs = %w[
+        lib
+        runbook
+        extensions
       ]
       target = File.join(*dirs)
 
@@ -48,10 +48,10 @@ module Runbook
     end
 
     def create_generators_directory
-      dirs = [
-        "lib",
-        "runbook",
-        "generators",
+      dirs = %w[
+        lib
+        runbook
+        generators
       ]
       target = File.join(*dirs)
 
@@ -61,13 +61,13 @@ module Runbook
 
     def runbook_initialization_overview
       msg = [
-        "",
-        "Runbook was successfully initialized.",
-        "Add runbooks to the `runbooks` directory.",
-        "Add shared code to `lib/runbook`.",
-        "Execute runbooks using `bundle exec runbook exec <RUNBOOK_PATH>`",
-        "from your project root.",
-        "\n",
+        '',
+        'Runbook was successfully initialized.',
+        'Add runbooks to the `runbooks` directory.',
+        'Add shared code to `lib/runbook`.',
+        'Execute runbooks using `bundle exec runbook exec <RUNBOOK_PATH>`',
+        'from your project root.',
+        "\n"
       ]
 
       say(msg.join("\n"))
@@ -77,8 +77,8 @@ module Runbook
 
     def _keep_dir(dir)
       create_file(
-        File.join(dir, ".keep"),
-        verbose: false,
+        File.join(dir, '.keep'),
+        verbose: false
       )
     end
   end

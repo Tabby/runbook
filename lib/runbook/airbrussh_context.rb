@@ -2,7 +2,7 @@ module Runbook
   class AirbrusshContext
     attr_reader :history, :current_task_name
 
-    def initialize(config=Airbrussh.configuration)
+    def initialize(_config = Airbrussh.configuration)
       @history = []
     end
 

@@ -1,8 +1,8 @@
-require "spec_helper"
+require 'spec_helper'
 require 'securerandom'
 
-RSpec.describe "runbook sshkit integration", type: :aruba do
-  let(:config_file) { "runbook_config.rb" }
+RSpec.describe 'runbook sshkit integration', type: :aruba do
+  let(:config_file) { 'runbook_config.rb' }
   let(:config_content) do
     <<-CONFIG
     Runbook.configure do |config|
@@ -10,27 +10,27 @@ RSpec.describe "runbook sshkit integration", type: :aruba do
     end
     CONFIG
   end
-  let(:runbook_file) { "my_runbook.rb" }
-  let(:book_title) { "My Runbook" }
-  let(:repo_file) {
+  let(:runbook_file) { 'my_runbook.rb' }
+  let(:book_title) { 'My Runbook' }
+  let(:repo_file) do
     Runbook::Util::Repo._file(book_title)
-  }
-  let(:stored_pose_file) {
+  end
+  let(:stored_pose_file) do
     Runbook::Util::StoredPose._file(book_title)
-  }
-  let(:user) { ENV["USER"] }
+  end
+  let(:user) { ENV.fetch('USER', nil) }
   let(:key_dir) do
     File.join(
       aruba.root_directory,
       aruba.current_directory,
-      "ssh_keys"
+      'ssh_keys'
     )
   end
 
   around(:all) do |example|
-    ports = "-p 10022:22"
+    ports = '-p 10022:22'
     mount = "-v #{key_dir}/id_rsa.pub:/etc/authorized_keys/$USER"
-    users = %Q{-e SSH_USERS="$USER:500:500"}
+    users = %(-e SSH_USERS="$USER:500:500")
 
     begin
       FileUtils.mkdir_p(key_dir)
@@ -60,7 +60,7 @@ RSpec.describe "runbook sshkit integration", type: :aruba do
 
   before(:each) { run_command(command) }
 
-  describe "sshkit" do
+  describe 'sshkit' do
     let(:command) { "runbook exec -P #{runbook_file}" }
     let(:content) do
       <<-RUNBOOK
@@ -80,20 +80,20 @@ RSpec.describe "runbook sshkit integration", type: :aruba do
       end
       RUNBOOK
     end
-    let(:output_lines) {
+    let(:output_lines) do
       [
-        /#{@cid[0..11]}/,
+        /#{@cid[0..11]}/
       ]
-    }
+    end
 
-    it "executes remote commands" do
+    it 'executes remote commands' do
       output_lines.each do |line|
         expect(last_command_started).to have_output(line)
       end
     end
 
-    context "when single quotes are not escaped and user is specified" do
-      let(:echo_output) { "I \\$love you" }
+    context 'when single quotes are not escaped and user is specified' do
+      let(:echo_output) { 'I \\$love you' }
       let(:content) do
         <<-RUNBOOK
         SSHKit::Backend::Netssh.configure do |ssh|
@@ -113,14 +113,13 @@ RSpec.describe "runbook sshkit integration", type: :aruba do
         end
         RUNBOOK
       end
-      let(:output_lines) {
+      let(:output_lines) do
         [
-          / #{echo_output}$/,
+          / #{echo_output}$/
         ]
-      }
+      end
 
-
-      it "does not break the command" do
+      it 'does not break the command' do
         output_lines.each do |line|
           expect(last_command_started).to have_output(line)
         end
@@ -128,4 +127,3 @@ RSpec.describe "runbook sshkit integration", type: :aruba do
     end
   end
 end
-

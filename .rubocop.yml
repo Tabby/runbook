@@ -1,0 +1,24 @@
+inherit_from: .rubocop_todo.yml
+
+AllCops:
+  NewCops: enable
+
+Layout/LineLength:
+  Max: 120
+
+Lint/EmptyBlock:
+  Exclude:
+    - 'spec/**/*.rb'
+
+Lint/MissingSuper:
+  AllowedParentClasses:
+    - 'Runbook::Entity'
+    - 'Runbook::Node'
+    - 'Runbook::Statement'
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/RedundantInitialize:
+  Exclude:
+    - 'spec/**/*.rb'

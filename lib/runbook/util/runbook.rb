@@ -21,23 +21,24 @@ module Runbook
 
   def self.deprecator
     return @deprecator if @deprecator
+
     major_version = Gem::Version.new(Runbook::VERSION).segments[0]
     next_major_version = major_version + 1
     @deprecator = ActiveSupport::Deprecation.new(
       "#{next_major_version}.0",
-      "Runbook"
+      'Runbook'
     )
   end
 
   def self._child_classes(mod)
-    mod.constants.map { |const|
-      "#{mod.to_s}::#{const}".constantize
-    }.select { |const| const.is_a?(Class) }
+    mod.constants.map do |const|
+      "#{mod}::#{const}".constantize
+    end.select { |const| const.is_a?(Class) }
   end
 
   def self._child_modules(mod)
-    mod.constants.map { |const|
-      "#{mod.to_s}::#{const}".constantize
-    }.select { |const| const.is_a?(Module) }
+    mod.constants.map do |const|
+      "#{mod}::#{const}".constantize
+    end.select { |const| const.is_a?(Module) }
   end
 end

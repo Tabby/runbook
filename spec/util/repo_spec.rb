@@ -1,22 +1,22 @@
-require "spec_helper"
+require 'spec_helper'
 
 RSpec.describe Runbook::Util::Repo, type: :aruba do
   let(:toolbox) { Runbook::Toolbox.new }
-  let(:book_title) { "My Amazing Runbook" }
-  let(:repo) { {some: :thing} }
-  let(:metadata) {
+  let(:book_title) { 'My Amazing Runbook' }
+  let(:repo) { { some: :thing } }
+  let(:metadata) do
     Runbook::Util::StickyHash.new.merge({
-      toolbox: toolbox,
-      book_title: book_title,
-      repo: Runbook::Util::Glue.new(repo),
-    })
-  }
-  let(:file) {
+                                          toolbox:,
+                                          book_title:,
+                                          repo: Runbook::Util::Glue.new(repo)
+                                        })
+  end
+  let(:file) do
     Runbook::Util::Repo._file(book_title)
-  }
-  let(:file_content) {
+  end
+  let(:file_content) do
     repo.to_yaml
-  }
+  end
 
   before(:each) do
     allow(toolbox).to receive(:output)
@@ -26,19 +26,19 @@ RSpec.describe Runbook::Util::Repo, type: :aruba do
     FileUtils.rm_f(file)
   end
 
-  describe "self.load_repo" do
-    context "when file does not exist" do
-      it "does not set the repo" do
-        expect(::YAML).to_not receive(:load_file)
+  describe 'self.load_repo' do
+    context 'when file does not exist' do
+      it 'does not set the repo' do
+        expect(YAML).to_not receive(:load_file)
 
         Runbook::Util::Repo.load(metadata)
       end
     end
 
-    context "when repo_file exists" do
+    context 'when repo_file exists' do
       before(:each) { write_file(file, file_content) }
 
-      it "outputs that it is loading the file" do
+      it 'outputs that it is loading the file' do
         expect(toolbox).to receive(:output).with(
           /Loading previous state/
         )
@@ -46,7 +46,7 @@ RSpec.describe Runbook::Util::Repo, type: :aruba do
         Runbook::Util::Repo.load(metadata)
       end
 
-      it "sets the repo" do
+      it 'sets the repo' do
         metadata[:repo] = {}
 
         Runbook::Util::Repo.load(metadata)
@@ -56,22 +56,22 @@ RSpec.describe Runbook::Util::Repo, type: :aruba do
     end
   end
 
-  describe "self.save_repo" do
-    let(:repo) { {flower: "daisy"} }
+  describe 'self.save_repo' do
+    let(:repo) { { flower: 'daisy' } }
 
-    it "saves the repo" do
-      Runbook::Util::Repo.save(repo, book_title: book_title)
+    it 'saves the repo' do
+      Runbook::Util::Repo.save(repo, book_title:)
       metadata[:repo] = {}
 
       Runbook::Util::Repo.load(metadata)
       expect(metadata[:repo]).to eq(repo)
     end
 
-    context "when the title has invalid characters" do
-      let(:book_title) { "My/Amazing/Runbook" }
+    context 'when the title has invalid characters' do
+      let(:book_title) { 'My/Amazing/Runbook' }
 
-      it "saves the repo" do
-        Runbook::Util::Repo.save(repo, book_title: book_title)
+      it 'saves the repo' do
+        Runbook::Util::Repo.save(repo, book_title:)
         metadata[:repo] = {}
 
         Runbook::Util::Repo.load(metadata)
@@ -80,9 +80,9 @@ RSpec.describe Runbook::Util::Repo, type: :aruba do
     end
   end
 
-  describe "self.delete" do
-    it "deletes the stored repo" do
-      Runbook::Util::Repo.save(repo, book_title: book_title)
+  describe 'self.delete' do
+    it 'deletes the stored repo' do
+      Runbook::Util::Repo.save(repo, book_title:)
 
       Runbook::Util::Repo.delete(book_title)
 

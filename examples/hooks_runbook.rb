@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require "runbook"
+require 'runbook'
 
 Runbook::Runs::SSHKit.register_hook(
   :output_before_hook,
@@ -30,42 +30,42 @@ Runbook::Runs::SSHKit.register_hook(
   metadata[:toolbox].output " [After: #{location}]\n"
 end
 
-runbook = Runbook.book "Example Hooks Runbook" do
-  description <<-DESC
-This is a runbook for playing with runbook hooks
+runbook = Runbook.book 'Example Hooks Runbook' do
+  description <<~DESC
+    This is a runbook for playing with runbook hooks
   DESC
 
-  layout [[
-    :runbook,
-    :bottom,
+  layout [%i[
+    runbook
+    bottom
   ]]
 
-  section "Hook" do
+  section 'Hook' do
     step do
-      note "Looky, Looky, I got a hooky"
+      note 'Looky, Looky, I got a hooky'
     end
 
     step
   end
 
-  section "Fishing Hooks" do
+  section 'Fishing Hooks' do
     step do
-      note "Hooked, line, and sinker"
+      note 'Hooked, line, and sinker'
     end
 
     step
   end
 
-  section "Hooked on Phonics" do
+  section 'Hooked on Phonics' do
     step do
-      note "Huked on Phoonics reely werx 4 mee"
+      note 'Huked on Phoonics reely werx 4 mee'
     end
 
     step
   end
 end
 
-if __FILE__ == $0
+if __FILE__ == $PROGRAM_NAME
   Runbook::Runner.new(runbook).run
 else
   runbook

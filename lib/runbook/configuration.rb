@@ -19,33 +19,20 @@ module Runbook
   end
 
   class Configuration
-    attr_accessor :_airbrussh_context
-    attr_accessor :ssh_kit
-    attr_accessor :enable_sudo_prompt
+    attr_accessor :_airbrussh_context, :ssh_kit, :enable_sudo_prompt
     attr_reader :use_same_sudo_password
 
-    GlobalConfigFile = "/etc/runbook.conf"
-    ProjectConfigFile = "Runbookfile"
-    UserConfigFile = ".runbook.conf"
+    GlobalConfigFile = '/etc/runbook.conf'.freeze
+    ProjectConfigFile = 'Runbookfile'.freeze
+    UserConfigFile = '.runbook.conf'.freeze
 
-    def self.cli_config_file
-      @cli_config_file
-    end
-
-    def self.cli_config_file=(cli_config_file)
-      @cli_config_file = cli_config_file
-    end
-
-    def self.loaded
-      @loaded
-    end
-
-    def self.loaded=(loaded)
-      @loaded = loaded
+    class << self
+      attr_accessor :cli_config_file, :loaded
     end
 
     def self.load_config
       return if @loaded
+
       @loaded = true
       _load_global_config
       _load_project_config
@@ -72,20 +59,21 @@ module Runbook
           load(config_path)
           return
         end
-        break if File.identical?(dir, "/")
-        dir = File.join(dir, "..")
+        break if File.identical?(dir, '/')
+
+        dir = File.join(dir, '..')
       end
     end
 
     def self._load_user_config
-      user_config_file = File.join(ENV["HOME"], UserConfigFile)
+      user_config_file = File.join(Dir.home, UserConfigFile)
       load(user_config_file) if File.exist?(user_config_file)
     end
 
     def self._load_cli_config
-      if cli_config_file && File.exist?(cli_config_file)
-        load(cli_config_file)
-      end
+      return unless cli_config_file && File.exist?(cli_config_file)
+
+      load(cli_config_file)
     end
 
     def initialize
@@ -94,7 +82,7 @@ module Runbook
         $stdout,
         banner: nil,
         command_output: true,
-        context: AirbrusshContext,
+        context: AirbrusshContext
       )
       ssh_kit.output = formatter
       self._airbrussh_context = formatter.formatters.find do |fmt|

@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require "runbook"
+require 'runbook'
 
 class QuietToolbox < Runbook::Toolbox
   def output(msg); end
@@ -19,28 +19,28 @@ Runbook::Runs::SSHKit.register_hook(
     Runbook.config.ssh_kit.output = Runbook.config.ssh_kit.use_format(:blackhole)
     metadata[:toolbox] = QuietToolbox.new
   end
-	block.call(object, metadata)
+  block.call(object, metadata)
   Runbook.config.ssh_kit.output = formatter
   metadata[:toolbox] = toolbox
 end
 
-runbook = Runbook.book "Capture Output Suppression" do
-  description <<-DESC
-This is a runbook that suppresses capture output
+runbook = Runbook.book 'Capture Output Suppression' do
+  description <<~DESC
+    This is a runbook that suppresses capture output
   DESC
 
-  section "Demo Output Capture" do
-    step "Capturing output", :suppress_statement_output do
-      capture "echo hi", into: :echo_output
+  section 'Demo Output Capture' do
+    step 'Capturing output', :suppress_statement_output do
+      capture 'echo hi', into: :echo_output
     end
 
-    step "Printing output" do
+    step 'Printing output' do
       ruby_command { notice echo_output }
     end
   end
 end
 
-if __FILE__ == $0
+if __FILE__ == $PROGRAM_NAME
   Runbook::Runner.new(runbook).run
 else
   runbook

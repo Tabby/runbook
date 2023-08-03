@@ -1,7 +1,7 @@
-require "spec_helper"
+require 'spec_helper'
 
-RSpec.describe "runbook view", type: :aruba do
-  let(:config_file) { "runbook_config.rb" }
+RSpec.describe 'runbook view', type: :aruba do
+  let(:config_file) { 'runbook_config.rb' }
   let(:config_content) do
     <<-CONFIG
     Runbook.configure do |config|
@@ -9,7 +9,7 @@ RSpec.describe "runbook view", type: :aruba do
     end
     CONFIG
   end
-  let(:runbook_file) { "my_runbook.rb" }
+  let(:runbook_file) { 'my_runbook.rb' }
   let(:content) do
     <<-RUNBOOK
     runbook = Runbook.book "My Runbook" do
@@ -27,68 +27,68 @@ RSpec.describe "runbook view", type: :aruba do
   before(:each) { write_file(runbook_file, content) }
   before(:each) { run_command(command) }
 
-  describe "input specification" do
-    context "runbook is passed as an argument" do
+  describe 'input specification' do
+    context 'runbook is passed as an argument' do
       let(:command) { "runbook view #{runbook_file}" }
 
-      it "prints a markdown representation of the runbook" do
+      it 'prints a markdown representation of the runbook' do
         expect(last_command_started).to have_output(/echo 'hi'/)
       end
 
-      it "renders code blocks" do
+      it 'renders code blocks' do
         expect(last_command_started).to_not have_output(/Unable to retrieve source code/)
       end
     end
 
-    context "when an unknown file is passed in as an argument" do
-      let(:command) { "runbook view unknown" }
-      let(:unknown_file_output) {
-        "view: cannot access unknown: No such file or directory"
-      }
+    context 'when an unknown file is passed in as an argument' do
+      let(:command) { 'runbook view unknown' }
+      let(:unknown_file_output) do
+        'view: cannot access unknown: No such file or directory'
+      end
 
-      it "prints an unknown file message" do
+      it 'prints an unknown file message' do
         expect(last_command_started).to have_output(unknown_file_output)
       end
     end
 
-    context "when view is passed" do
+    context 'when view is passed' do
       let(:command) { "runbook view --view markdown #{runbook_file}" }
 
-      it "prints a markdown representation of the runbook" do
+      it 'prints a markdown representation of the runbook' do
         expect(last_command_started).to have_output(/echo 'hi'/)
       end
 
-      context "(when v is passed)" do
+      context '(when v is passed)' do
         let(:command) { "runbook view -v markdown #{runbook_file}" }
 
-        it "prints a markdown representation of the runbook" do
+        it 'prints a markdown representation of the runbook' do
           expect(last_command_started).to have_output(/echo 'hi'/)
         end
       end
     end
 
-    context "when config is passed" do
+    context 'when config is passed' do
       let(:command) { "runbook view --config #{config_file} #{runbook_file}" }
 
-      it "prints the runbook using the specified configuration" do
+      it 'prints the runbook using the specified configuration' do
         expect(last_command_started).to have_output(/echo 'hi'/)
       end
 
-      context "(when c is passed)" do
+      context '(when c is passed)' do
         let(:command) { "runbook view -c #{config_file} #{runbook_file}" }
 
-        it "prints the runbook using the specified configuration" do
+        it 'prints the runbook using the specified configuration' do
           expect(last_command_started).to have_output(/echo 'hi'/)
         end
       end
 
-      context "when config does not exist" do
+      context 'when config does not exist' do
         let(:command) { "runbook view --config unknown #{runbook_file}" }
-        let(:unknown_file_output) {
-          "view: cannot access unknown: No such file or directory"
-        }
+        let(:unknown_file_output) do
+          'view: cannot access unknown: No such file or directory'
+        end
 
-        it "prints an unknown file message" do
+        it 'prints an unknown file message' do
           expect(
             last_command_started
           ).to have_output(unknown_file_output)

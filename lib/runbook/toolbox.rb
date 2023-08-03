@@ -7,7 +7,7 @@ module Runbook
     end
 
     def ask(msg, default: nil, echo: true)
-      prompt.ask(msg, default: default, echo: echo)
+      prompt.ask(msg, default:, echo:)
     end
 
     def expand(msg, choices)
@@ -30,8 +30,6 @@ module Runbook
       prompt.error(msg)
     end
 
-    def exit(return_value)
-      super(return_value)
-    end
+    public :exit
   end
 end

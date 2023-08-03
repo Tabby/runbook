@@ -1,49 +1,49 @@
-require "spec_helper"
+require 'spec_helper'
 
-RSpec.describe "runbook init", type: :aruba do
-  let(:command) { "runbook init" }
-  let(:init_output) {
+RSpec.describe 'runbook init', type: :aruba do
+  let(:command) { 'runbook init' }
+  let(:init_output) do
     [
-      "create  Runbookfile",
-      "create  runbooks",
-      "create  lib/runbook",
-      "create  lib/runbook/extensions",
-      "create  lib/runbook/generators",
-      "Runbook was successfully initialized.",
-      "Add runbooks to the `runbooks` directory.",
-      "Add shared code to `lib/runbook`.",
-      "Execute runbooks using `bundle exec runbook exec <RUNBOOK_PATH>",
-      "from your project root.",
+      'create  Runbookfile',
+      'create  runbooks',
+      'create  lib/runbook',
+      'create  lib/runbook/extensions',
+      'create  lib/runbook/generators',
+      'Runbook was successfully initialized.',
+      'Add runbooks to the `runbooks` directory.',
+      'Add shared code to `lib/runbook`.',
+      'Execute runbooks using `bundle exec runbook exec <RUNBOOK_PATH>',
+      'from your project root.'
     ]
-  }
+  end
 
   before(:each) { run_command(command) }
 
-  it "creates the Runbookfile and directory structure" do
+  it 'creates the Runbookfile and directory structure' do
     init_output.each do |output|
       expect(last_command_started).to have_output(/#{output}/)
     end
 
-    expect(file?("Runbookfile")).to be_truthy
-    expect(directory?("runbooks")).to be_truthy
-    expect(directory?("lib/runbook")).to be_truthy
-    expect(directory?("lib/runbook/extensions")).to be_truthy
-    expect(directory?("lib/runbook/generators")).to be_truthy
+    expect(file?('Runbookfile')).to be_truthy
+    expect(directory?('runbooks')).to be_truthy
+    expect(directory?('lib/runbook')).to be_truthy
+    expect(directory?('lib/runbook/extensions')).to be_truthy
+    expect(directory?('lib/runbook/generators')).to be_truthy
   end
 
-  context "when -p is passed" do
-    let(:command) { "runbook init -p" }
+  context 'when -p is passed' do
+    let(:command) { 'runbook init -p' }
 
-    it "does not create the files" do
+    it 'does not create the files' do
       init_output.each do |output|
         expect(last_command_started).to have_output(/#{output}/)
       end
 
-      expect(file?("Runbookfile")).to be_falsey
-      expect(directory?("runbooks")).to be_falsey
-      expect(directory?("lib/runbook")).to be_falsey
-      expect(directory?("lib/runbook/extensions")).to be_falsey
-      expect(directory?("lib/runbook/generators")).to be_falsey
+      expect(file?('Runbookfile')).to be_falsey
+      expect(directory?('runbooks')).to be_falsey
+      expect(directory?('lib/runbook')).to be_falsey
+      expect(directory?('lib/runbook/extensions')).to be_falsey
+      expect(directory?('lib/runbook/generators')).to be_falsey
     end
   end
 end

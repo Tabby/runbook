@@ -1,23 +1,23 @@
-require "spec_helper"
+require 'spec_helper'
 
 RSpec.describe Runbook::Viewer do
   let(:book) do
-    Runbook.book "My Book" do
-      description <<-DESC
-My elaborate
-description
+    Runbook.book 'My Book' do
+      description <<~DESC
+        My elaborate
+        description
       DESC
 
-      section "Parent Section" do
-        section "First Section" do
-          step "Step 1" do
-            note "I like cheese"
+      section 'Parent Section' do
+        section 'First Section' do
+          step 'Step 1' do
+            note 'I like cheese'
           end
         end
 
-        section "Second Section" do
-          step "Step 1" do
-            confirm "Did you eat cheese today?"
+        section 'Second Section' do
+          step 'Step 1' do
+            confirm 'Did you eat cheese today?'
           end
         end
       end
@@ -25,176 +25,176 @@ description
   end
   let(:viewer) { Runbook::Viewer.new(book) }
 
-  context "with markdown view" do
+  context 'with markdown view' do
     let(:view) { :markdown }
 
-    it "generates a markdown representation of the book" do
-      markdown = viewer.generate(view: view)
+    it 'generates a markdown representation of the book' do
+      markdown = viewer.generate(view:)
 
-      expect(markdown).to eq(<<-MARKDOWN)
-# My Book
+      expect(markdown).to eq(<<~MARKDOWN)
+        # My Book
 
-My elaborate
-description
+        My elaborate
+        description
 
-## 1. Parent Section
+        ## 1. Parent Section
 
-### 1. First Section
+        ### 1. First Section
 
-1. [] Step 1
+        1. [] Step 1
 
-   I like cheese
+           I like cheese
 
-### 2. Second Section
+        ### 2. Second Section
 
-1. [] Step 1
+        1. [] Step 1
 
-   confirm: Did you eat cheese today?
+           confirm: Did you eat cheese today?
 
-MARKDOWN
+      MARKDOWN
     end
 
-    context "step" do
-      context "with ssh_config" do
+    context 'step' do
+      context 'with ssh_config' do
         let(:book) do
-          Runbook.book "My Book" do
-            section "Section" do
-              step "Step" do
-                servers "appserver01.prod", "appserver02.prod"
+          Runbook.book 'My Book' do
+            section 'Section' do
+              step 'Step' do
+                servers 'appserver01.prod', 'appserver02.prod'
                 parallelization strategy: :sequence
-                path "/root"
-                user "root"
-                group "root"
-                env rails_env: "production"
-                umask "077"
+                path '/root'
+                user 'root'
+                group 'root'
+                env rails_env: 'production'
+                umask '077'
 
-                command %q{echo "hi"}
+                command 'echo "hi"'
               end
             end
           end
         end
 
-        it "renders the ssh_config within a step" do
-          markdown = viewer.generate(view: view)
+        it 'renders the ssh_config within a step' do
+          markdown = viewer.generate(view:)
 
-          expect(markdown).to eq(<<-MARKDOWN)
-# My Book
+          expect(markdown).to eq(<<~MARKDOWN)
+            # My Book
 
-## 1. Section
+            ## 1. Section
 
-1. [] Step
+            1. [] Step
 
-   on: appserver01.prod, appserver02.prod
-   in: sequence, wait: 2
-   as: user: root group: root
-   within: /root
-   with: RAILS_ENV=production
-   umask: 077
+               on: appserver01.prod, appserver02.prod
+               in: sequence, wait: 2
+               as: user: root group: root
+               within: /root
+               with: RAILS_ENV=production
+               umask: 077
 
-   run: `echo "hi"`
+               run: `echo "hi"`
 
-MARKDOWN
+          MARKDOWN
         end
       end
 
-      context "with long server list" do
+      context 'with long server list' do
         server_list = [
-          "appserver01.prod",
-          "appserver02.prod",
-          "appserver03.prod",
-          "appserver04.prod",
-          "appserver05.prod",
-          "appserver06.prod",
-          "appserver07.prod",
-          "appserver08.prod",
+          'appserver01.prod',
+          'appserver02.prod',
+          'appserver03.prod',
+          'appserver04.prod',
+          'appserver05.prod',
+          'appserver06.prod',
+          'appserver07.prod',
+          'appserver08.prod'
         ]
 
         let(:book) do
-          Runbook.book "My Book" do
-            section "Section" do
-              step "Step" do
-                servers *server_list
-                command %q{echo "hi"}
+          Runbook.book 'My Book' do
+            section 'Section' do
+              step 'Step' do
+                servers(*server_list)
+                command 'echo "hi"'
               end
             end
           end
         end
 
-        it "renders an abbreviated server list" do
-          markdown = viewer.generate(view: view)
+        it 'renders an abbreviated server list' do
+          markdown = viewer.generate(view:)
 
-          expect(markdown).to eq(<<-MARKDOWN)
-# My Book
+          expect(markdown).to eq(<<~MARKDOWN)
+            # My Book
 
-## 1. Section
+            ## 1. Section
 
-1. [] Step
+            1. [] Step
 
-   on: appserver01.prod, appserver02.prod, app...od, appserver07.prod, appserver08.prod
+               on: appserver01.prod, appserver02.prod, app...od, appserver07.prod, appserver08.prod
 
-   run: `echo "hi"`
+               run: `echo "hi"`
 
-MARKDOWN
+          MARKDOWN
         end
       end
 
-      context "with groups parallelization strategy" do
+      context 'with groups parallelization strategy' do
         let(:book) do
-          Runbook.book "My Book" do
-            section "Section" do
-              step "Step" do
+          Runbook.book 'My Book' do
+            section 'Section' do
+              step 'Step' do
                 parallelization strategy: :groups, limit: 10, wait: 5
-                command %q{echo "hi"}
+                command 'echo "hi"'
               end
             end
           end
         end
 
-        it "renders in: with limit and wait" do
-          markdown = viewer.generate(view: view)
+        it 'renders in: with limit and wait' do
+          markdown = viewer.generate(view:)
 
-          expect(markdown).to eq(<<-MARKDOWN)
-# My Book
+          expect(markdown).to eq(<<~MARKDOWN)
+            # My Book
 
-## 1. Section
+            ## 1. Section
 
-1. [] Step
+            1. [] Step
 
-   in: groups, limit: 10, wait: 5
+               in: groups, limit: 10, wait: 5
 
-   run: `echo "hi"`
+               run: `echo "hi"`
 
-MARKDOWN
+          MARKDOWN
         end
       end
 
-      context "with parallel parallelization strategy" do
+      context 'with parallel parallelization strategy' do
         let(:book) do
-          Runbook.book "My Book" do
-            section "Section" do
-              step "Step" do
+          Runbook.book 'My Book' do
+            section 'Section' do
+              step 'Step' do
                 parallelization strategy: :parallel, limit: 10, wait: 5
-                command %q{echo "hi"}
+                command 'echo "hi"'
               end
             end
           end
         end
 
-        it "renders in without limit or wait" do
-          markdown = viewer.generate(view: view)
+        it 'renders in without limit or wait' do
+          markdown = viewer.generate(view:)
 
-          expect(markdown).to eq(<<-MARKDOWN)
-# My Book
+          expect(markdown).to eq(<<~MARKDOWN)
+            # My Book
 
-## 1. Section
+            ## 1. Section
 
-1. [] Step
+            1. [] Step
 
-   in: parallel
+               in: parallel
 
-   run: `echo "hi"`
+               run: `echo "hi"`
 
-MARKDOWN
+          MARKDOWN
         end
       end
     end

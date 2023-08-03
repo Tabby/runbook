@@ -1,44 +1,42 @@
-require "spec_helper"
+require 'spec_helper'
 
 RSpec.describe Runbook do
-  let(:title) { "Some Title" }
-  let(:tags) { [:mutator, :redhat] }
-  let(:labels) { {env: :prod, cloud_provider: :aws} }
+  let(:title) { 'Some Title' }
+  let(:tags) { %i[mutator redhat] }
+  let(:labels) { { env: :prod, cloud_provider: :aws } }
   let(:book) { Runbook.book(title) {} }
 
-  it "has a version number" do
+  it 'has a version number' do
     expect(Runbook::VERSION).not_to be nil
   end
 
-  describe "self.book" do
+  describe 'self.book' do
     around(:each) do |example|
-      begin
-        example.run
-      ensure
-        Runbook.books.clear
-      end
+      example.run
+    ensure
+      Runbook.books.clear
     end
 
-    it "returns a book" do
+    it 'returns a book' do
       expect(book).to be_a(Runbook::Entities::Book)
     end
 
-    it "sets the books title" do
+    it 'sets the books title' do
       expect(book.title).to eq(title)
     end
 
-    context "with tags" do
+    context 'with tags' do
       let(:book) { Runbook.book(title, *tags) {} }
 
-      it "sets the books tags" do
+      it 'sets the books tags' do
         expect(book.tags).to eq(tags)
       end
     end
 
-    context "with labels" do
-      let(:book) { Runbook.book(title, labels: labels) {} }
+    context 'with labels' do
+      let(:book) { Runbook.book(title, labels:) {} }
 
-      it "sets the books labels" do
+      it 'sets the books labels' do
         expect(book.labels).to eq(labels)
       end
     end
@@ -54,15 +52,15 @@ RSpec.describe Runbook do
       book
     end
 
-    it "registers a book" do
+    it 'registers a book' do
       expect(Runbook.books).to eq([book])
     end
   end
 
-  describe "self.section" do
+  describe 'self.section' do
     let(:section) { Runbook.section(title) {} }
 
-    it "returns a section" do
+    it 'returns a section' do
       expect(section).to be_a(Runbook::Entities::Section)
     end
 
@@ -70,18 +68,18 @@ RSpec.describe Runbook do
       expect(section.title).to eq(title)
     end
 
-    context "with tags" do
+    context 'with tags' do
       let(:section) { Runbook.section(title, *tags) {} }
 
-      it "sets the sections tags" do
+      it 'sets the sections tags' do
         expect(section.tags).to eq(tags)
       end
     end
 
-    context "with labels" do
-      let(:section) { Runbook.section(title, labels: labels) {} }
+    context 'with labels' do
+      let(:section) { Runbook.section(title, labels:) {} }
 
-      it "sets the sections labels" do
+      it 'sets the sections labels' do
         expect(section.labels).to eq(labels)
       end
     end
@@ -98,18 +96,18 @@ RSpec.describe Runbook do
     end
   end
 
-  describe "self.setup" do
+  describe 'self.setup' do
     let(:setup) { Runbook.setup {} }
 
-    it "returns a setup" do
+    it 'returns a setup' do
       expect(setup).to be_a(Runbook::Entities::Setup)
     end
 
     it "sets the setup's title" do
-      expect(setup.title).to eq("Setup")
+      expect(setup.title).to eq('Setup')
     end
 
-    context "with tags" do
+    context 'with tags' do
       let(:setup) { Runbook.setup(*tags) {} }
 
       it "sets the setup's tags" do
@@ -117,8 +115,8 @@ RSpec.describe Runbook do
       end
     end
 
-    context "with labels" do
-      let(:setup) { Runbook.setup(labels: labels) {} }
+    context 'with labels' do
+      let(:setup) { Runbook.setup(labels:) {} }
 
       it "sets the setup's labels" do
         expect(setup.tags).to eq([])
@@ -138,10 +136,10 @@ RSpec.describe Runbook do
     end
   end
 
-  describe "self.step" do
+  describe 'self.step' do
     let(:step) { Runbook.step(title) {} }
 
-    it "returns a step" do
+    it 'returns a step' do
       expect(step).to be_a(Runbook::Entities::Step)
     end
 
@@ -149,28 +147,28 @@ RSpec.describe Runbook do
       expect(step.title).to eq(title)
     end
 
-    context "with title and tags" do
+    context 'with title and tags' do
       let(:step) { Runbook.step(title, *tags) {} }
 
-      it "sets the steps tags" do
+      it 'sets the steps tags' do
         expect(step.title).to eq(title)
         expect(step.tags).to eq(tags)
       end
     end
 
-    context "with only tags" do
+    context 'with only tags' do
       let(:step) { Runbook.step(*tags) {} }
 
-      it "sets the steps tags" do
+      it 'sets the steps tags' do
         expect(step.title).to be_nil
         expect(step.tags).to eq(tags)
       end
     end
 
-    context "with labels" do
-      let(:step) { Runbook.step(labels: labels) {} }
+    context 'with labels' do
+      let(:step) { Runbook.step(labels:) {} }
 
-      it "sets the steps labels" do
+      it 'sets the steps labels' do
         expect(step.title).to be_nil
         expect(step.labels).to eq(labels)
       end
@@ -187,31 +185,29 @@ RSpec.describe Runbook do
       step
     end
 
-    context "when no title is given" do
+    context 'when no title is given' do
       let(:step) { Runbook.step {} }
-      it "title returns nil" do
+      it 'title returns nil' do
         expect(step.title).to be_nil
       end
     end
 
-    context "when no block is given" do
+    context 'when no block is given' do
       let(:step) { Runbook.step(title) }
-      it "does not error" do
+      it 'does not error' do
         expect(step).to_not be_nil
       end
     end
   end
 
-  describe "self.register" do
+  describe 'self.register' do
     around(:each) do |example|
-      begin
-        example.run
-      ensure
-        Runbook.books.clear
-      end
+      example.run
+    ensure
+      Runbook.books.clear
     end
 
-    it "registers a book" do
+    it 'registers a book' do
       book
       Runbook.books.clear
       Runbook.register(book)
@@ -219,16 +215,14 @@ RSpec.describe Runbook do
     end
   end
 
-  describe "self.books" do
+  describe 'self.books' do
     around(:each) do |example|
-      begin
-        example.run
-      ensure
-        Runbook.books.clear
-      end
+      example.run
+    ensure
+      Runbook.books.clear
     end
 
-    it "persists a list of books" do
+    it 'persists a list of books' do
       book
       Runbook.books.clear
       Runbook.books << book
@@ -236,20 +230,20 @@ RSpec.describe Runbook do
     end
   end
 
-  describe "self.deprecator" do
-    it "returns an ActiveSupport::Deprecation object" do
+  describe 'self.deprecator' do
+    it 'returns an ActiveSupport::Deprecation object' do
       expect(Runbook.deprecator).to be_a(ActiveSupport::Deprecation)
     end
 
-    it "is memoized" do
+    it 'is memoized' do
       deprecator1 = Runbook.deprecator
       deprecator2 = Runbook.deprecator
       expect(deprecator2.object_id).to eq(deprecator1.object_id)
     end
 
-    it "states the function will be replaced in the next major version" do
-      nmv = Runbook::VERSION.split(".").first.to_i + 1
-      expect(STDERR).to receive(:puts).with(/DEPRECATION WARNING:.*Runbook #{nmv}.0.*/)
+    it 'states the function will be replaced in the next major version' do
+      nmv = Runbook::VERSION.split('.').first.to_i + 1
+      expect($stderr).to receive(:puts).with(/DEPRECATION WARNING:.*Runbook #{nmv}.0.*/)
       Runbook.deprecator.deprecation_warning(:deprecated_method, :new_method)
     end
   end

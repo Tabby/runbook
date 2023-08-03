@@ -1,15 +1,15 @@
-require "spec_helper"
+require 'spec_helper'
 require 'securerandom'
 
-RSpec.describe "runbook tmux integration", type: :aruba do
-  let(:runbook_file) { "my_runbook.rb" }
-  let(:book_title) { "My Runbook" }
-  let(:repo_file) {
+RSpec.describe 'runbook tmux integration', type: :aruba do
+  let(:runbook_file) { 'my_runbook.rb' }
+  let(:book_title) { 'My Runbook' }
+  let(:repo_file) do
     Runbook::Util::Repo._file(book_title)
-  }
-  let(:stored_pose_file) {
+  end
+  let(:stored_pose_file) do
     Runbook::Util::StoredPose._file(book_title)
-  }
+  end
 
   around(:all) do |example|
     `docker build --rm -t runbook:latest -f dockerfiles/Dockerfile-runbook .`
@@ -37,8 +37,8 @@ RSpec.describe "runbook tmux integration", type: :aruba do
     run_command("docker exec -t #{@cid} #{command}")
   end
 
-  describe "tmux_command" do
-    let(:sentinel_dir) { "/sentinel_files" }
+  describe 'tmux_command' do
+    let(:sentinel_dir) { '/sentinel_files' }
     let(:sentinel_file) { SecureRandom.hex }
     let(:content) do
       <<-RUNBOOK
@@ -57,13 +57,13 @@ RSpec.describe "runbook tmux integration", type: :aruba do
       "tmux new 'bundle exec exe/runbook exec -a /#{runbook_file}'"
     end
 
-    let(:output_lines) {
+    let(:output_lines) do
       [
-        /Note: file touched/,
+        /Note: file touched/
       ]
-    }
+    end
 
-    it "executes the command in the specified tmux pane" do
+    it 'executes the command in the specified tmux pane' do
       output_lines.each do |line|
         expect(last_command_started).to have_output(line)
       end
@@ -72,7 +72,7 @@ RSpec.describe "runbook tmux integration", type: :aruba do
       expect(last_command_started).to have_output(sentinel_file)
     end
 
-    context "when single quotes are not escaped" do
+    context 'when single quotes are not escaped' do
       let(:sentinel_file) { "#{SecureRandom.hex}$love" }
       let(:content) do
         <<-RUNBOOK
@@ -88,7 +88,7 @@ RSpec.describe "runbook tmux integration", type: :aruba do
         RUNBOOK
       end
 
-      it "does not break tmux_command" do
+      it 'does not break tmux_command' do
         output_lines.each do |line|
           expect(last_command_started).to have_output(line)
         end

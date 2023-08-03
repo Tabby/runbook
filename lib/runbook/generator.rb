@@ -7,8 +7,8 @@ module Runbook
 
     def self._unique_class_options(generator)
       generator.class_options.values.reject do |class_option|
-        class_option.group == "Runtime" ||
-          class_option.group == "Base"
+        class_option.group == 'Runtime' ||
+          class_option.group == 'Base'
       end
     end
 
@@ -26,7 +26,7 @@ module Runbook
           aliases: co.aliases,
           type: co.type,
           banner: co.banner,
-          hide: co.hide,
+          hide: co.hide
         )
       end
 

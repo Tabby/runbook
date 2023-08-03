@@ -1,5 +1,5 @@
 module Runbook
-  class Entity < Node
+  class Entity < Runbook::Node
     include Runbook::Hooks::Invoker
     const_set(:DSL, Runbook::DSL.class)
 
@@ -26,9 +26,9 @@ module Runbook
       @items ||= []
     end
 
-    ruby2_keywords def method_missing(method, *args, &block)
+    ruby2_keywords def method_missing(method, *, &)
       if dsl.respond_to?(method)
-        dsl.send(method, *args, &block)
+        dsl.send(method, *, &)
       else
         super
       end
@@ -41,8 +41,8 @@ module Runbook
     def render(view, output, metadata)
       invoke_with_hooks(view, self, output, metadata) do
         view.render(self, output, metadata)
-        items.each_with_index do |item, index|
-          new_metadata = _render_metadata(items, item, metadata, index)
+        items.each do |item|
+          new_metadata = _render_metadata(item, metadata)
           item.render(view, output, new_metadata)
         end
       end
@@ -55,22 +55,22 @@ module Runbook
       invoke_with_hooks(run, self, metadata) do
         run.execute(self, metadata)
         next if _should_reverse?(run, metadata)
+
         loop do
           items.each_with_index do |item, index|
-            new_metadata = _run_metadata(items, item, metadata, index)
+            new_metadata = _run_metadata(item, metadata, index)
             # Optimization
             break if _should_reverse?(run, new_metadata)
+
             item.run(run, new_metadata)
           end
 
-          if _should_retraverse?(run, metadata)
-            metadata[:reverse] = false
-          else
-            break
-          end
+          break unless _should_retraverse?(run, metadata)
+
+          metadata[:reverse] = false
         end
       end
-      self.visited!
+      visited!
     end
 
     def dynamic!
@@ -78,51 +78,53 @@ module Runbook
       @dynamic = true
     end
 
-    def _render_metadata(items, item, metadata, index)
-      index = items.select do |item|
-        item.is_a?(Entity)
+    def _render_metadata(item, metadata)
+      index = items.select do |inner_item|
+        inner_item.is_a?(Entity)
       end.index(item)
 
       metadata.merge(
         {
           depth: metadata[:depth] + 1,
-          index: index,
+          index:
         }
       )
     end
 
-    def _run_metadata(items, item, metadata, index)
-      pos_index = items.select do |item|
-        item.is_a?(Entity) &&
-          !item.is_a?(Runbook::Entities::Setup)
+    def _run_metadata(item, metadata, index)
+      pos_index = items.select do |inner_item|
+        inner_item.is_a?(Entity) &&
+          !inner_item.is_a?(Runbook::Entities::Setup)
       end.index(item)
 
-      if pos_index
-        if metadata[:position].empty?
-          pos = "#{pos_index + 1}"
-        else
-          pos = "#{metadata[:position]}.#{pos_index + 1}"
-        end
-      else
-        pos = metadata[:position]
-      end
+      pos = if pos_index
+              if metadata[:position].empty?
+                (pos_index + 1).to_s
+              else
+                "#{metadata[:position]}.#{pos_index + 1}"
+              end
+            else
+              metadata[:position]
+            end
 
       metadata.merge(
         {
           depth: metadata[:depth] + 1,
-          index: index,
-          position: pos,
+          index:,
+          position: pos
         }
       )
     end
 
     def _should_reverse?(run, metadata)
       return false unless metadata[:reverse]
+
       run.past_position?(metadata[:position], metadata[:start_at])
     end
 
     def _should_retraverse?(run, metadata)
       return false unless metadata[:reverse]
+
       run.start_at_is_substep?(self, metadata)
     end
   end
